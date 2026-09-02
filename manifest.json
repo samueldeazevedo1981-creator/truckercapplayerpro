@@ -1,0 +1,26 @@
+{
+  "name": "Trucker Cap Player",
+  "short_name": "TC Player",
+  "description": "Player de palco com múltiplas setlists, pitch individual e letras/cifras em TXT ou PDF.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#09090b",
+  "theme_color": "#b91c1c",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "./index.html"
+}
