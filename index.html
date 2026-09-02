@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>TRUCKER CAP PLAYER - Palco Pro</title>
+  <meta name="theme-color" content="#b91c1c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="TC Player" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--red:#b91c1c;--dark:#050507;--panel:#09090b;--line:#27272a}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;background:#000;color:#fff;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+    ::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:#000}::-webkit-scrollbar-thumb{background:var(--red);border-radius:99px}
+    .stage-panel{background:linear-gradient(180deg,#0b0b0e,#050507);border:1px solid #27272a;box-shadow:0 30px 80px rgba(0,0,0,.65)}
+    .red-glow{box-shadow:0 0 35px rgba(185,28,28,.45)}
+    .btn{border:0;border-radius:18px;padding:15px 22px;font-weight:1000;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;transition:.15s;user-select:none}
+    .btn:active{transform:scale(.96)}.btn-red{background:var(--red);color:white}.btn-dark{background:#18181b;color:white;border:1px solid #3f3f46}.btn-ghost{background:#09090b;color:#a1a1aa;border:1px solid #27272a}.btn-red:hover{background:#991b1b}.btn-dark:hover,.btn-ghost:hover{border-color:#b91c1c;color:#fff}
+    input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:11px;border-radius:999px;background:#27272a;outline:none}input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:30px;height:30px;border-radius:50%;background:var(--red);border:4px solid #fff;box-shadow:0 0 18px rgba(185,28,28,.7)}
+    .lyrics{font-family:"Courier New",monospace;white-space:pre;word-break:normal;overflow-x:auto;line-height:1.45}.lyrics.pdf-mode{font-family:inherit;white-space:normal;overflow:auto;padding:14px!important}.pdf-pages{display:flex;flex-direction:column;align-items:center;gap:14px}.pdf-page{display:block;max-width:100%;height:auto;background:#fff;box-shadow:0 3px 18px rgba(0,0,0,.65)}.pdf-loading,.pdf-fallback{padding:28px;text-align:center;color:#fff}.pdf-fallback a{color:#f87171;font-weight:1000;text-decoration:underline}.chord{color:#facc15;font-weight:1000}.lyric{color:#fff}
+    .track{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;border:1px solid #27272a;background:#09090b;cursor:pointer}.track.active{background:#b91c1c;border-color:#fca5a5;color:#fff}.track.dragging{opacity:.45;border:2px dashed #fff}.small{font-size:11px;color:#a1a1aa;font-weight:900;text-transform:uppercase;letter-spacing:.16em}
+    @keyframes pulse{0%,100%{opacity:.4;transform:scaleY(.45)}50%{opacity:1;transform:scaleY(1)}}.vu{animation:pulse 1s infinite;transform-origin:bottom}.safe-bottom{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+    @media(max-width:768px){.btn{padding:13px 16px;font-size:12px}.lyrics{font-size:22px}.hide-mobile{display:none}.playbtn{width:110px!important;height:110px!important}.container-pad{padding:14px!important}.title{font-size:34px!important}.stage-height{height:420px!important}}
+
+    /* v1.3 PALCO OTIMIZADO: letra maior + autoplay no player */
+    .lyrics-toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}
+    .lyrics-stage{height:clamp(620px,68vh,820px)!important;min-height:620px}
+    .lyrics-stage .lyrics{min-height:0;font-size:var(--lyrics-font-size, clamp(28px,3.2vw,42px));line-height:1.36;padding:22px 28px!important}
+    .scroll-pill{display:flex;align-items:center;gap:8px;background:#09090b;border:1px solid #27272a;border-radius:16px;padding:8px 12px}
+    .player-autoplay-row{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .player-autoplay-row #autoPlayBtn{font-size:12px;padding:13px 18px;border-radius:16px}
+
+
+    .font-size-pill{display:flex;align-items:center;gap:8px;background:#09090b;border:1px solid #27272a;border-radius:16px;padding:8px 12px}
+    .font-size-pill input{width:105px!important;height:8px!important}
+    @media(max-width:768px){.font-size-pill{padding:6px 8px;gap:6px}.font-size-pill input{width:86px!important;height:7px!important}}
+
+    /* v1.2 MOBILE PERFORMANCE + REAL TABS */
+    .tab-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:-8px 0 18px;position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);padding:10px;border-bottom:1px solid #18181b}
+    .tab-btn{border:1px solid #27272a;background:#09090b;color:#a1a1aa;border-radius:16px;padding:14px 12px;font-weight:1000;letter-spacing:.14em;text-transform:uppercase}
+    .tab-btn.active{background:var(--red);color:#fff;border-color:#fca5a5;box-shadow:0 0 22px rgba(185,28,28,.35)}
+    .tab-page{display:none}.tab-page.active{display:block}
+    .setlist-shell{max-width:980px;margin:0 auto}.palco-shell{max-width:1200px;margin:0 auto}
+    .setlist-manager{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:8px}.setlist-select{width:100%;min-width:0;border:1px solid #3f3f46;background:#09090b;color:#fff;border-radius:15px;padding:13px;font-weight:900}.setlist-manager .btn{padding:12px 14px;font-size:11px}@media(max-width:680px){.setlist-manager{grid-template-columns:1fr 1fr}.setlist-select{grid-column:1/-1}}
+    @media(max-width:768px){
+      body{background:#000}.stage-panel{box-shadow:0 14px 34px rgba(0,0,0,.55)}.red-glow{box-shadow:0 0 18px rgba(185,28,28,.30)}
+      .tab-nav{margin-left:-14px;margin-right:-14px;top:0}.tab-btn{font-size:12px;padding:13px 8px}
+      header.stage-panel{margin-bottom:12px}.stage-height{height:calc(100vh - 230px)!important;min-height:520px}.lyrics-stage{height:calc(100vh - 230px)!important;min-height:520px}.lyrics{font-size:var(--lyrics-font-size, 24px)!important;line-height:1.34!important;padding:16px!important}
+      .lyrics-toolbar{gap:6px}.lyrics-toolbar .btn{font-size:10px;padding:10px 11px;border-radius:13px}.scroll-pill{padding:6px 8px;gap:6px}.scroll-pill input{width:92px!important;height:7px!important}
+      #vu{display:none!important}.vu{animation:none!important}.title{line-height:.95}.safe-bottom{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+      #songTitle{font-size:26px!important;white-space:normal}.playbtn{width:104px!important;height:104px!important;font-size:38px!important}
+      #time{font-size:21px!important;padding:12px 14px!important}.btn{border-radius:15px}.track{padding:13px}.hide-on-stage-mobile{display:none!important}
+    }
+    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+    /* AJUSTE MOBILE CORRIGIDO:
+       No celular: LETRA -> PLAYER -> BARRA -> NOME/TEMPO.
+       Corrige o bug do space-y do Tailwind quando usamos order. */
+    @media(max-width:768px){
+      .palco-player-panel{
+        display:flex!important;
+        flex-direction:column!important;
+        gap:18px!important;
+      }
+      .palco-player-panel > *{
+        margin-top:0!important;
+        margin-bottom:0!important;
+      }
+      .palco-controls-grid{order:1!important;}
+      .palco-seek{order:2!important;}
+      .palco-song-info{order:3!important;}
+      .palco-song-info{
+        padding:14px!important;
+      }
+      .palco-song-info #songTitle{
+        font-size:22px!important;
+        line-height:1.05!important;
+      }
+      .palco-song-info #time{
+        font-size:18px!important;
+        padding:10px 12px!important;
+      }
+    }
+
+
+    /* v1.4 INSTALAÇÃO IOS: Safari não mostra prompt automático igual Android */
+    .ios-install-card{position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9999;background:linear-gradient(180deg,#111113,#050507);border:1px solid #3f3f46;border-radius:22px;padding:16px;box-shadow:0 20px 70px rgba(0,0,0,.75);display:none}
+    .ios-install-card.show{display:block}
+    .ios-install-card h3{margin:0 0 6px;font-size:16px;font-weight:1000;color:#fff;text-transform:uppercase;letter-spacing:.08em}
+    .ios-install-card p{margin:0 0 12px;color:#d4d4d8;font-size:14px;line-height:1.35}
+    .ios-install-steps{margin:0 0 12px;padding-left:20px;color:#fff;font-size:14px;line-height:1.45}
+    .ios-install-steps strong{color:#f87171}
+    .ios-install-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .ios-install-actions .btn{padding:11px 14px;font-size:11px;border-radius:14px}
+    @media(min-width:769px){.ios-install-card{left:auto;right:24px;max-width:420px}}
+    .pitch-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.pitch-btn{border:1px solid #27272a;background:#09090b;color:#a1a1aa;border-radius:14px;padding:13px 6px;font-weight:1000;font-size:12px;text-transform:uppercase;letter-spacing:.05em}.pitch-btn.active{background:var(--red);color:#fff;border-color:#fca5a5;box-shadow:0 0 22px rgba(185,28,28,.35)}.pitch-note{font-size:11px;color:#a1a1aa;line-height:1.35;text-align:center}.pitch-warn{color:#facc15;font-weight:900}@media(max-width:768px){.pitch-grid{grid-template-columns:repeat(4,1fr)}}
+    .video-stage{display:none;flex:1;min-height:0;background:#000;align-items:center;justify-content:center;position:relative;padding:10px}.video-stage.show{display:flex}.stage-video{display:block;width:100%;max-width:1280px;max-height:100%;aspect-ratio:16/9;object-fit:contain;background:#000}.video-fullscreen{position:absolute;right:20px;top:20px;z-index:3;background:rgba(0,0,0,.76)!important;color:#fff!important}.media-type{display:inline-block;margin-top:4px;padding:3px 7px;border:1px solid #3f3f46;border-radius:99px;color:#d4d4d8;font-size:9px;font-weight:1000}.pitch-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+    @media(orientation:landscape) and (max-height:700px){.video-stage.show{padding:0}.stage-video{max-width:100%;max-height:calc(100vh - 92px)}.video-fullscreen{top:10px;right:10px}.lyrics-stage.video-mode{height:calc(100vh - 92px)!important;min-height:280px!important}}
+
+  </style>
+</head>
+<body>
+  <div id="app" class="max-w-[1600px] mx-auto p-4 md:p-8 safe-bottom container-pad">
+    <header class="stage-panel rounded-[28px] p-5 md:p-7 mb-6 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-1 bg-red-700 red-glow"></div>
+      <div class="flex flex-col lg:flex-row gap-5 items-center justify-between">
+        <div class="flex items-center gap-5 text-center lg:text-left">
+          <img src="icon-192.png" class="w-20 h-20 rounded-3xl border-2 border-red-700 red-glow" alt="TCB" />
+          <div>
+            <h1 class="title text-4xl md:text-6xl font-black italic tracking-tighter">TRUCKER CAP PLAYER</h1>
+            <p class="text-red-600 font-black tracking-[.26em] text-xs md:text-base uppercase">O app do músico ao vivo</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap justify-center gap-3">
+          <label class="btn btn-red red-glow">CARREGAR ÁUDIO/VÍDEO<input id="audioInput" type="file" accept="audio/*,video/mp4,video/webm,.mp4,.webm,.mov" multiple hidden></label>
+          <button id="installBtn" class="btn btn-dark hidden">INSTALAR APP</button>
+        </div>
+      </div>
+      <p id="status" class="mt-4 text-center lg:text-right small">Pronto para palco • Áudios e letras ficam salvos neste aparelho</p>
+    </header>
+
+
+
+    <div id="iosInstallCard" class="ios-install-card" role="dialog" aria-live="polite" aria-label="Instalar app no iPhone">
+      <h3>Instalar no iPhone</h3>
+      <p>No iPhone, a instalação é feita pelo Safari. Toque em compartilhar e adicione o app à tela inicial.</p>
+      <ol class="ios-install-steps">
+        <li>Abra este link no <strong>Safari</strong>.</li>
+        <li>Toque no botão <strong>Compartilhar</strong> ⎋.</li>
+        <li>Escolha <strong>Adicionar à Tela de Início</strong>.</li>
+      </ol>
+      <div class="ios-install-actions">
+        <button id="iosInstallOkBtn" class="btn btn-red" type="button">ENTENDI</button>
+        <button id="iosInstallLaterBtn" class="btn btn-ghost" type="button">VER DEPOIS</button>
+      </div>
+    </div>
+
+    <nav class="tab-nav" aria-label="Abas do aplicativo">
+      <button id="tabPalcoBtn" class="tab-btn active" type="button">PALCO</button>
+      <button id="tabSetlistBtn" class="tab-btn" type="button">SETLIST</button>
+    </nav>
+
+    <main class="space-y-6">
+      <section id="tabSetlist" class="tab-page setlist-shell stage-panel rounded-[28px] p-4 min-h-[520px] flex-col">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
+          <h2 class="small text-red-500">Setlist / Configuração</h2><span id="count" class="small">0</span>
+        </div>
+        <div class="setlist-manager mb-4">
+          <select id="setlistSelect" class="setlist-select" aria-label="Selecionar setlist"></select>
+          <button id="newSetlistBtn" class="btn btn-red" type="button">+ NOVA</button>
+          <button id="renameSetlistBtn" class="btn btn-dark" type="button">RENOMEAR</button>
+          <button id="deleteSetlistBtn" class="btn btn-ghost" type="button">APAGAR</button>
+        </div>
+        <div class="mb-4">
+          <label class="btn btn-red red-glow w-full text-center block">CARREGAR ÁUDIO/VÍDEO<input id="audioInputSetlist" type="file" accept="audio/*,video/mp4,video/webm,.mp4,.webm,.mov" multiple hidden></label>
+        </div>
+        <div id="trackList" class="flex-1 overflow-y-auto space-y-3"></div>
+        <div class="pt-4 mt-4 border-t border-zinc-800 flex gap-2">
+          <button id="clearBtn" class="btn btn-ghost w-full">LIMPAR TUDO</button>
+        </div>
+      </section>
+
+      <section id="tabPalco" class="tab-page active palco-shell space-y-6">
+        <div id="monitorStage" class="stage-panel rounded-[32px] overflow-hidden border-4 border-red-800 stage-height lyrics-stage flex flex-col">
+          <div id="lyricsHeader" class="bg-black p-4 md:p-5 border-b border-red-900/50 flex flex-col md:flex-row gap-3 justify-between items-center">
+            <div id="monitorTitle" class="font-black uppercase tracking-[.22em] text-sm md:text-base">MONITOR DE LETRA / CIFRA</div>
+            <div id="lyricsToolbar" class="lyrics-toolbar">
+              <label class="btn btn-dark text-xs">UPLOAD TXT/PDF<input id="txtInput" type="file" accept=".txt,text/plain,.pdf,application/pdf" hidden></label>
+              <button id="scrollUpBtn" class="btn btn-ghost text-xs">◀ LETRA</button>
+              <button id="scrollDownBtn" class="btn btn-ghost text-xs">LETRA ▶</button>
+              <button id="scrollTopBtn" class="btn btn-ghost text-xs">SYNC 0</button>
+              <div class="scroll-pill">
+                <span class="small !text-[9px]">VEL</span>
+                <input id="scrollSpeed" type="range" min="0.25" max="1.80" step="0.05" value="1" style="width:115px;height:8px" />
+                <span id="scrollSpeedValue" class="small !text-[9px] w-10">1.00x</span>
+              </div>
+              <div class="font-size-pill">
+                <span class="small !text-[9px]">FONTE</span>
+                <input id="fontSizeControl" type="range" min="18" max="38" step="1" value="24" />
+                <span id="fontSizeValue" class="small !text-[9px] w-10">24px</span>
+              </div>
+              <button id="autoScrollBtn" class="btn btn-ghost text-xs">AUTO SCROLL ON</button>
+            </div>
+          </div>
+          <div id="lyricsBox" class="lyrics flex-1 overflow-y-auto p-6 md:p-10 text-2xl md:text-4xl bg-black/70 italic font-bold">Carregue um áudio e depois vincule uma letra/cifra em TXT ou PDF.</div>
+          <div id="videoStage" class="video-stage">
+            <video id="videoPlayer" class="stage-video" playsinline webkit-playsinline controls preload="metadata"></video>
+            <button id="videoFullscreenBtn" class="btn video-fullscreen" type="button">⛶ TELA CHEIA</button>
+          </div>
+        </div>
+
+        <div class="stage-panel rounded-[36px] p-5 md:p-8 space-y-7 palco-player-panel">
+          <div class="bg-black rounded-[24px] p-5 border border-zinc-800 flex flex-col md:flex-row gap-4 items-center justify-between palco-song-info">
+            <div class="min-w-0 text-center md:text-left">
+              <div id="songTitle" class="text-3xl md:text-5xl font-black italic text-red-600 truncate">SEM ÁUDIO</div>
+              <div class="player-autoplay-row justify-center md:justify-start">
+                <button id="autoPlayBtn" class="btn btn-red text-xs">AUTO PLAY ÁUDIO ON</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div id="vu" class="hidden h-10 items-end gap-1"></div>
+              <div id="time" class="font-mono text-2xl md:text-4xl font-black text-red-600 bg-zinc-950 rounded-2xl px-5 py-3 border border-zinc-800">0:00 | 0:00</div>
+            </div>
+          </div>
+
+          <input id="seek" class="palco-seek" type="range" min="0" max="100" step="0.01" value="0" />
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 palco-controls-grid">
+            <div class="bg-black rounded-[28px] p-5 border border-zinc-800 flex flex-col justify-center items-center gap-6">
+              <div class="flex items-center gap-4">
+                <button id="prevBtn" class="btn btn-ghost text-2xl">⏮</button>
+                <button id="playBtn" class="playbtn btn btn-red red-glow rounded-full text-5xl flex items-center justify-center" style="width:150px;height:150px">▶</button>
+                <button id="nextBtn" class="btn btn-ghost text-2xl">⏭</button>
+              </div>
+              <div id="engine" class="small text-red-500">ENGINE PRONTO</div>
+            </div>
+
+            <div class="bg-black rounded-[28px] p-5 border border-zinc-800 space-y-6">
+              <span class="small text-red-500">MASTER GAIN</span>
+              <div class="flex items-center gap-4"><span class="text-3xl">🔊</span><input id="volume" type="range" min="0" max="1.2" step="0.01" value="0.8" /></div>
+              <div id="volumeValue" class="text-center text-4xl font-black text-red-600">80%</div>
+              <div class="pt-4 border-t border-zinc-800 space-y-3">
+                <div class="flex items-center justify-between gap-3"><span class="small text-red-500">PITCH PRECISO</span><span id="pitchValue" class="small text-white">TOM ORIGINAL</span></div>
+                <div class="pitch-grid" id="pitchGrid">
+                  <button class="pitch-btn" type="button" data-pitch="-4">-2 TONS</button>
+                  <button class="pitch-btn" type="button" data-pitch="-3">-1½ TOM</button>
+                  <button class="pitch-btn" type="button" data-pitch="-2">-1 TOM</button>
+                  <button class="pitch-btn" type="button" data-pitch="-1">-½ TOM</button>
+                  <button class="pitch-btn active" type="button" data-pitch="0">ORIGINAL</button>
+                  <button class="pitch-btn" type="button" data-pitch="1">+½ TOM</button>
+                  <button class="pitch-btn" type="button" data-pitch="2">+1 TOM</button>
+                </div>
+                <div id="pitchNote" class="pitch-note">De 4 semitons abaixo até 2 semitons acima, em passos de meio tom.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script type="module">
+  import { SoundTouchNode } from './soundtouch-node.js';
+  window.SoundTouchNode = SoundTouchNode;
+</script>
+<script>
+(() => {
+  const DB_NAME = 'TRUCKER_CAP_PLAYER_STAGE_DB_V12';
+  const STORE = 'tracks';
+  const $ = (id) => document.getElementById(id);
+  const el = {
+    audioInput:$('audioInput'), audioInputSetlist:$('audioInputSetlist'), txtInput:$('txtInput'), trackList:$('trackList'), count:$('count'), status:$('status'),
+    lyricsBox:$('lyricsBox'), lyricsHeader:$('lyricsHeader'), lyricsToolbar:$('lyricsToolbar'), monitorStage:$('monitorStage'), monitorTitle:$('monitorTitle'), videoStage:$('videoStage'), videoPlayer:$('videoPlayer'), videoFullscreenBtn:$('videoFullscreenBtn'), songTitle:$('songTitle'), time:$('time'), seek:$('seek'), playBtn:$('playBtn'), prevBtn:$('prevBtn'), nextBtn:$('nextBtn'),
+    volume:$('volume'), volumeValue:$('volumeValue'), clearBtn:$('clearBtn'), setlistSelect:$('setlistSelect'), newSetlistBtn:$('newSetlistBtn'), renameSetlistBtn:$('renameSetlistBtn'), deleteSetlistBtn:$('deleteSetlistBtn'),
+    autoScrollBtn:$('autoScrollBtn'), autoPlayBtn:$('autoPlayBtn'), scrollUpBtn:$('scrollUpBtn'), scrollDownBtn:$('scrollDownBtn'), scrollTopBtn:$('scrollTopBtn'), scrollSpeed:$('scrollSpeed'), scrollSpeedValue:$('scrollSpeedValue'), fontSizeControl:$('fontSizeControl'), fontSizeValue:$('fontSizeValue'), vu:$('vu'), engine:$('engine'), installBtn:$('installBtn'), iosInstallCard:$('iosInstallCard'), iosInstallOkBtn:$('iosInstallOkBtn'), iosInstallLaterBtn:$('iosInstallLaterBtn')
+  };
+
+  const DEFAULT_SETLIST_ID='setlist_principal';
+  let setlists = [], activeSetlistId = localStorage.getItem('tcb_active_setlist') || DEFAULT_SETLIST_ID;
+  let db, allTracks = [], tracks = [], currentIndex = 0, player = null, timer = null, progress = 0, duration = 0, isPlaying = false, autoScroll = true, autoPlay = (localStorage.getItem('tcb_auto_play') !== 'false'), deferredInstall = null, dragId = null, objectUrl = null, pdfRenderToken = 0;
+  let pitchTones = 0, pitchEngine = null, pitchAudioCtx = null, pitchBufferNode = null, pitchGainNode = null, pitchStartedAt = 0, pitchStartOffset = 0;
+  let scrollBias = 0, scrollSpeed = Number(localStorage.getItem('tcb_scroll_speed') || 1), fontSize = Number(localStorage.getItem('tcb_font_size') || 24), programmaticScroll = false;
+
+  function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:'id'});};req.onsuccess=e=>resolve(e.target.result);req.onerror=()=>reject(req.error);});}
+  function tx(mode='readonly'){return db.transaction(STORE,mode).objectStore(STORE)}
+  function getAll(){return new Promise(res=>{const r=tx().getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>res([]);});}
+  function putTrack(t){return new Promise((res,rej)=>{const r=tx('readwrite').put(t);r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});}
+  function deleteTrack(id){return new Promise(res=>{const r=tx('readwrite').delete(id);r.onsuccess=()=>res();r.onerror=()=>res();});}
+  function clearAll(){return new Promise(res=>{const r=tx('readwrite').clear();r.onsuccess=()=>res();r.onerror=()=>res();});}
+  const fmt=s=>{s=Math.max(0,Number(s)||0);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')};
+  const current=()=>tracks[currentIndex]||null;
+  const isVideo=t=>!!t && (t.mediaType==='video' || (t.audio && (String(t.audio.type||'').startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(t.audio.name||''))));
+  const setStatus=(m)=>{el.status.textContent=m};
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+  function maxScroll(){return Math.max(0, el.lyricsBox.scrollHeight - el.lyricsBox.clientHeight)}
+  function baseScrollTop(){return duration ? (progress / duration) * maxScroll() * scrollSpeed : 0}
+  function applyAutoScroll(){
+    if(!autoScroll || !duration) return;
+    const top = clamp(baseScrollTop() + scrollBias, 0, maxScroll());
+    programmaticScroll = true;
+    el.lyricsBox.scrollTo({top, behavior:'smooth'});
+    setTimeout(()=>{programmaticScroll=false}, 180);
+  }
+  function updateAutoPlayUI(){
+    el.autoPlayBtn.textContent = autoPlay ? 'AUTO PLAY: LIGADO' : 'AUTO PLAY: DESLIGADO';
+    el.autoPlayBtn.className = autoPlay ? 'btn btn-red text-xs' : 'btn btn-ghost text-xs';
+  }
+  function updateAutoScrollUI(){
+    el.autoScrollBtn.textContent = autoScroll ? 'AUTO SCROLL ON' : 'AUTO SCROLL OFF';
+    el.autoScrollBtn.className = autoScroll ? 'btn btn-red text-xs' : 'btn btn-ghost text-xs';
+  }
+  function updateScrollSpeedUI(){
+    scrollSpeed = clamp(Number(scrollSpeed) || 1, .25, 1.8);
+    el.scrollSpeed.value = scrollSpeed;
+    el.scrollSpeedValue.textContent = scrollSpeed.toFixed(2)+'x';
+  }
+  function updateFontSizeUI(){
+    fontSize = clamp(Number(fontSize) || 24, 18, 38);
+    if(el.fontSizeControl) el.fontSizeControl.value = fontSize;
+    if(el.fontSizeValue) el.fontSizeValue.textContent = fontSize + 'px';
+    if(el.lyricsBox) el.lyricsBox.style.setProperty('--lyrics-font-size', fontSize + 'px');
+  }
+  function pitchSemitones(){ return pitchTones; }
+  function updatePitchUI(){
+    pitchTones = clamp(Math.round(Number(pitchTones) || 0), -4, 2);
+    document.querySelectorAll('.pitch-btn').forEach(btn=>btn.classList.toggle('active', Number(btn.dataset.pitch) === pitchTones));
+    const labels={0:'TOM ORIGINAL','-1':'-½ TOM','-2':'-1 TOM','-3':'-1½ TOM','-4':'-2 TONS',1:'+½ TOM',2:'+1 TOM'};
+    const label = labels[pitchTones] || 'TOM ORIGINAL';
+    const pv = $('pitchValue'); if(pv) pv.textContent = label;
+    const note = $('pitchNote'); if(note) note.innerHTML = pitchTones === 0 ? 'Tom original, sem processamento.' : (pitchTones<0?'Abaixo ':'Acima ')+Math.abs(pitchTones)+' semitom'+(Math.abs(pitchTones)>1?'s':'')+', mantendo o tempo original.';
+    const videoSelected=isVideo(current());
+    document.querySelectorAll('.pitch-btn').forEach(btn=>btn.disabled=videoSelected);
+    if(videoSelected){if(pv)pv.textContent='INDISPONÍVEL NO VÍDEO';if(note)note.textContent='O vídeo mantém o áudio original para preservar a sincronização.'}
+  }
+  function loadSetlists(){
+    try{setlists=JSON.parse(localStorage.getItem('tcb_setlists')||'[]')}catch(e){setlists=[]}
+    if(!Array.isArray(setlists)||!setlists.length)setlists=[{id:DEFAULT_SETLIST_ID,name:'Setlist Principal'}];
+    if(!setlists.some(s=>s.id===activeSetlistId))activeSetlistId=setlists[0].id;
+    saveSetlists();
+  }
+  function saveSetlists(){localStorage.setItem('tcb_setlists',JSON.stringify(setlists));localStorage.setItem('tcb_active_setlist',activeSetlistId)}
+  function renderSetlists(){
+    el.setlistSelect.innerHTML=setlists.map(s=>`<option value="${escapeHTML(s.id)}" ${s.id===activeSetlistId?'selected':''}>${escapeHTML(s.name)}</option>`).join('');
+    el.deleteSetlistBtn.disabled=setlists.length<=1;
+  }
+  function useActiveTracks(preferredId){
+    tracks=allTracks.filter(t=>(t.setlistId||DEFAULT_SETLIST_ID)===activeSetlistId).sort((a,b)=>(a.position||0)-(b.position||0));
+    currentIndex=preferredId?Math.max(0,tracks.findIndex(t=>t.id===preferredId)):0;
+    pitchTones=Number(current()?.pitchTones||0);progress=0;duration=0;scrollBias=0;
+  }
+  async function ensurePitchWorklet(ctx){
+    if(!ctx.audioWorklet || !window.SoundTouchNode) return false;
+    await window.SoundTouchNode.register(ctx,'./soundtouch-processor.js');
+    return true;
+  }
+
+  function renderVU(){el.vu.innerHTML='';for(let i=0;i<14;i++){const b=document.createElement('div');b.className='vu w-2 bg-red-600 rounded-t';b.style.height=(35+Math.random()*65)+'%';b.style.animationDelay=(i*.05)+'s';el.vu.appendChild(b)}}
+  renderVU();
+
+  function render(){
+    tracks.sort((a,b)=>(a.position||0)-(b.position||0));
+    if(currentIndex>=tracks.length) currentIndex=Math.max(0,tracks.length-1);
+    el.count.textContent=tracks.length+' arquivo(s)';
+    el.trackList.innerHTML='';
+    if(!tracks.length){el.trackList.innerHTML='<div class="text-center text-zinc-600 font-black uppercase tracking-widest py-20">Nenhum áudio ou vídeo carregado</div>'}
+    tracks.forEach((t,i)=>{
+      const div=document.createElement('div');div.className='track '+(i===currentIndex?'active':'');div.draggable=true;div.dataset.id=t.id;
+      const detail=isVideo(t)?'<span class="media-type">VÍDEO 16:9</span>':(t.lyricsType==='pdf'?'PDF OK':(t.lyrics?'TXT OK':'ÁUDIO • SEM LETRA'));
+      div.innerHTML=`<span class="font-mono opacity-50 text-xs">${String(i+1).padStart(2,'0')}</span><div class="min-w-0 flex-1"><div class="truncate font-black uppercase">${escapeHTML(t.name)}</div><div class="text-[10px] opacity-60 uppercase font-bold">${detail}</div></div><button class="del text-xs px-3 py-2 rounded-xl bg-black/40 border border-red-900 text-red-200 font-black">🗑 APAGAR</button>`;
+      div.addEventListener('click',e=>{if(e.target.closest('.del'))return;selectTrack(i,autoPlay)});
+      div.querySelector('.del').addEventListener('click',async e=>{e.stopPropagation();await removeTrack(t.id)});
+      div.addEventListener('dragstart',()=>{dragId=t.id;div.classList.add('dragging')});
+      div.addEventListener('dragend',()=>{dragId=null;div.classList.remove('dragging')});
+      div.addEventListener('dragover',e=>e.preventDefault());
+      div.addEventListener('drop',async e=>{e.preventDefault();await reorder(dragId,t.id)});
+      el.trackList.appendChild(div);
+    });
+    refreshCurrentUI();
+  }
+  function escapeHTML(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+  async function renderPdf(pdfBlob, token){
+    try{
+      const pdfjsLib=await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
+      const data=await pdfBlob.arrayBuffer();
+      const pdf=await pdfjsLib.getDocument({data}).promise;
+      if(token!==pdfRenderToken)return;
+      const holder=document.createElement('div');holder.className='pdf-pages';el.lyricsBox.innerHTML='';el.lyricsBox.appendChild(holder);
+      for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
+        if(token!==pdfRenderToken)return;
+        const page=await pdf.getPage(pageNumber);const base=page.getViewport({scale:1});
+        const available=Math.max(280,el.lyricsBox.clientWidth-36);const scale=Math.min(2.2,available/base.width);const viewport=page.getViewport({scale});
+        const canvas=document.createElement('canvas');canvas.className='pdf-page';canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);holder.appendChild(canvas);
+        await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+      }
+    }catch(err){
+      console.error(err);if(token!==pdfRenderToken)return;
+      const url=URL.createObjectURL(pdfBlob);el.lyricsBox.innerHTML=`<div class="pdf-fallback">Não foi possível exibir o PDF dentro do app. <a href="${url}" target="_blank" rel="noopener">ABRIR PDF</a></div>`;
+    }
+  }
+  function renderLyrics(trackOrTxt){
+    const t = (trackOrTxt && typeof trackOrTxt === 'object') ? trackOrTxt : null;
+    const txt = t ? t.lyrics : trackOrTxt;
+    el.lyricsBox.classList.remove('pdf-mode');
+    const token=++pdfRenderToken;
+    if(t && t.lyricsType === 'pdf' && t.lyricsPdf){
+      el.lyricsBox.classList.add('pdf-mode');
+      el.lyricsBox.innerHTML='<div class="pdf-loading">CARREGANDO PDF...</div>';
+      renderPdf(t.lyricsPdf,token);
+      return;
+    }
+    if(!txt){el.lyricsBox.textContent='Sem letra/cifra vinculada. Use o botão UPLOAD TXT/PDF.';return}
+    // Preserva exatamente os espaços, quebras e alinhamento do arquivo .TXT — essencial para cifra no mobile.
+    el.lyricsBox.textContent = String(txt) + '\n\n\n\n\n\n\n\n\n\n\n\n';
+  }
+  function refreshCurrentUI(){
+    const t=current();
+    pitchTones=Number(t?.pitchTones||0);updatePitchUI();
+    el.songTitle.textContent=t?t.name:'SEM ÁUDIO';
+    const video=isVideo(t);
+    el.videoStage.classList.toggle('show',video);el.lyricsBox.style.display=video?'none':'';el.lyricsToolbar.style.display=video?'none':'';el.monitorStage.classList.toggle('video-mode',video);el.monitorTitle.textContent=video?'VÍDEO 16:9 • LEGENDA INCORPORADA':'MONITOR DE LETRA / CIFRA';
+    if(!video)renderLyrics(t || '');
+    el.seek.max=duration||100;el.seek.value=progress||0;el.time.textContent=fmt(progress)+' | '+fmt(duration);
+  }
+
+  async function load(){
+    db=await openDB();loadSetlists();allTracks=await getAll();
+    for(const t of allTracks){if(!t.setlistId){t.setlistId=DEFAULT_SETLIST_ID;await putTrack(t)}}
+    if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+    useActiveTracks();renderSetlists();setStatus(allTracks.length?'Arquivos e setlists recuperados do aparelho.':'Pronto para receber áudios.');render();
+  }
+
+  async function addAudios(files){
+    const audios=[...files].filter(f=>f.type.startsWith('audio/') || f.type.startsWith('video/') || /\.(mp3|wav|m4a|aac|ogg|flac|mp4|webm|mov|m4v)$/i.test(f.name));
+    if(!audios.length){setStatus('Nenhum áudio ou vídeo válido encontrado.');return}
+    setStatus('Salvando mídia no aparelho...');
+    const start=tracks.length;
+    for(let i=0;i<audios.length;i++){
+      const f=audios[i];
+      const id='tcb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+      const mediaType=(f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name))?'video':'audio';
+      const track={id,name:f.name.replace(/\.[^/.]+$/,''),audio:f,mediaType,lyrics:'',pitchTones:0,setlistId:activeSetlistId,position:start+i,createdAt:Date.now()};
+      try{await putTrack(track);tracks.push(track);allTracks.push(track)}catch(err){console.error(err);setStatus('Sem espaço para salvar '+f.name+'. Remova arquivos antigos ou use um vídeo menor.');break}
+    }
+    setStatus('Áudio/vídeo salvo. Ele continuará aqui quando fechar e abrir.');render();
+  }
+  async function uploadTxt(file){
+    const t=current(); if(!t){setStatus('Carregue um áudio antes de vincular TXT ou PDF.');return}
+    if(isVideo(t)){setStatus('Este vídeo já deve conter a legenda incorporada. TXT/PDF é usado nas faixas de áudio.');return}
+    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    const isTxt = file.type.startsWith('text/') || /\.txt$/i.test(file.name);
+    if(isPdf){
+      t.lyrics='';
+      t.lyricsType='pdf';
+      t.lyricsPdf=file;
+      t.lyricsFileName=file.name;
+      t.updatedAt=Date.now();
+      await putTrack(t);
+      setStatus('PDF vinculado à backing track atual.');
+      renderLyrics(t);render();
+      return;
+    }
+    if(!isTxt){setStatus('Arquivo inválido. Use TXT ou PDF.');return}
+    const txt=await file.text();
+    t.lyrics=txt;
+    t.lyricsType='txt';
+    t.lyricsPdf=null;
+    t.lyricsFileName=file.name;
+    t.updatedAt=Date.now();await putTrack(t);
+    setStatus('Letra/cifra TXT salva sem reiniciar o player.');renderLyrics(t);render();
+  }
+
+  async function selectTrack(i,shouldAutoPlay=false){
+    if(!tracks.length || i < 0 || i >= tracks.length) return;
+    stopPlayer(false);
+    currentIndex=i;progress=0;duration=0;scrollBias=0;render();updateTime();
+    if(shouldAutoPlay === true) await playCurrent(0);
+    else { el.playBtn.textContent='▶'; el.engine.textContent='FAIXA PRONTA'; setStatus('Faixa selecionada. Auto Play desligado: aperte PLAY quando quiser.'); }
+  }
+
+  async function playVideoCurrent(offset=progress){
+    const t=current();if(!isVideo(t))return;
+    try{
+      stopPlayer(false);el.engine.textContent='CARREGANDO VÍDEO...';setStatus('Preparando vídeo 16:9...');
+      objectUrl=URL.createObjectURL(t.audio);player=el.videoPlayer;player.src=objectUrl;player.volume=Math.max(0,Math.min(1,Number(el.volume.value||.8)));player.preload='auto';player.playsInline=true;
+      player.onloadedmetadata=()=>{duration=player.duration||0;progress=Math.min(offset||0,Math.max(0,duration-.05));if(Number.isFinite(progress))player.currentTime=progress;updateTime()};
+      player.ontimeupdate=()=>{progress=player.currentTime||0;duration=player.duration||duration||0;updateTime()};
+      player.onended=()=>next();
+      player.onplay=()=>{isPlaying=true;el.playBtn.textContent='Ⅱ';el.engine.textContent='VÍDEO ATIVO'};
+      player.onpause=()=>{if(!player.ended){isPlaying=false;el.playBtn.textContent='▶'}};
+      await player.play();
+      timer=setInterval(()=>{if(!player)return;progress=player.currentTime||0;duration=player.duration||duration||0;updateTime()},250);
+      setStatus('Vídeo tocando. Gire o celular para assistir em 16:9 ou use TELA CHEIA.');
+    }catch(err){console.error(err);setStatus('Não foi possível tocar este vídeo. Prefira MP4 com H.264 e áudio AAC.');el.engine.textContent='ERRO NO VÍDEO';stopPlayer()}
+  }
+
+  async function playCurrent(offset=progress){
+    const t=current(); if(!t){setStatus('Nenhum áudio carregado.');return}
+    if(isVideo(t))return playVideoCurrent(offset);
+    if(pitchSemitones() !== 0) return playPitchCurrent(offset);
+    try{
+      el.engine.textContent='CARREGANDO ÁUDIO...';
+      setStatus('Preparando áudio...');
+      stopPlayer(false);
+      if(objectUrl){URL.revokeObjectURL(objectUrl); objectUrl=null}
+      objectUrl=URL.createObjectURL(t.audio);
+      player=new Audio(objectUrl);
+      player.volume=Number(el.volume.value || 0.8);
+      player.preload='auto';
+      player.addEventListener('loadedmetadata',()=>{
+        duration=player.duration||0;
+        progress=Math.min(offset||0, Math.max(0, duration-.05));
+        if(Number.isFinite(progress)) player.currentTime=progress;
+        updateTime();
+      }, {once:true});
+      player.addEventListener('timeupdate',()=>{
+        progress=player.currentTime||0;
+        duration=player.duration||duration||0;
+        updateTime();
+        applyAutoScroll();
+      });
+      player.addEventListener('ended',()=>next(), {once:true});
+      await player.play();
+      isPlaying=true; el.playBtn.textContent='Ⅱ'; el.vu.classList.remove('hidden');el.vu.classList.add('flex');el.engine.textContent='ENGINE ATIVO';
+      timer=setInterval(()=>{
+        if(!player) return;
+        progress=player.currentTime||0;
+        duration=player.duration||duration||0;
+        updateTime();
+        applyAutoScroll();
+      },250);
+      updateTime();setStatus('Tocando áudio.');
+    }catch(err){console.error(err);setStatus('Erro ao tocar. Tente recarregar o áudio.');el.engine.textContent='ERRO NO ÁUDIO';stopPlayer(false)}
+  }
+  async function playPitchCurrent(offset=progress){
+    const t=current(); if(!t){setStatus('Nenhum áudio carregado.');return}
+    try{
+      stopPlayer(false);
+      el.engine.textContent='PITCH ENGINE...';
+      setStatus('Carregando motor de pitch preciso. No primeiro play pode demorar alguns segundos.');
+      pitchAudioCtx = new (window.AudioContext || window.webkitAudioContext)({latencyHint:'playback'});
+      await pitchAudioCtx.resume();
+      const ok = await ensurePitchWorklet(pitchAudioCtx);
+      if(!ok) throw new Error('AudioWorklet/SoundTouch indisponível neste navegador.');
+      const buffer = await t.audio.arrayBuffer();
+      const audioBuffer = await pitchAudioCtx.decodeAudioData(buffer.slice(0));
+      duration = audioBuffer.duration || 0;
+      progress = Math.min(offset||0, Math.max(0, duration-.05));
+      pitchStartOffset = progress;
+      pitchStartedAt = pitchAudioCtx.currentTime;
+      pitchEngine = new window.SoundTouchNode({context:pitchAudioCtx});
+      pitchEngine.pitch.value=1;
+      pitchEngine.pitchSemitones.value=pitchSemitones();
+      pitchEngine.playbackRate.value=1;
+      pitchBufferNode=pitchAudioCtx.createBufferSource();
+      pitchBufferNode.buffer=audioBuffer;
+      pitchBufferNode.playbackRate.value=1;
+      pitchGainNode = pitchAudioCtx.createGain();
+      pitchGainNode.gain.value = Math.max(0, Math.min(1, Number(el.volume.value || 0.8)));
+      pitchBufferNode.connect(pitchEngine);
+      pitchEngine.connect(pitchGainNode);
+      pitchGainNode.connect(pitchAudioCtx.destination);
+      pitchBufferNode.onended=()=>{if(isPlaying)next()};
+      pitchBufferNode.start(0,progress);
+      isPlaying=true; el.playBtn.textContent='Ⅱ'; el.vu.classList.remove('hidden');el.vu.classList.add('flex');
+      el.engine.textContent='PITCH '+(pitchSemitones()>0?'+':'')+pitchSemitones()+' ST';
+      timer=setInterval(()=>{
+        if(!pitchAudioCtx) return;
+        progress = Math.min(duration, pitchStartOffset + (pitchAudioCtx.currentTime - pitchStartedAt));
+        updateTime(); applyAutoScroll();
+        if(duration && progress >= duration - .05) next();
+      },250);
+      updateTime();setStatus('Tocando com pitch preciso e tempo preservado.');
+    }catch(err){
+      console.error(err);
+      setStatus('Este navegador não conseguiu abrir o motor de pitch preciso. Voltando ao tom original para não travar.');
+      pitchTones=0;if(current()){current().pitchTones=0;await putTrack(current())}updatePitchUI();
+      await playCurrent(offset);
+    }
+  }
+  function stopPlayer(resetPlay=true){
+    if(timer){clearInterval(timer);timer=null}
+    if(player){try{player.onended=null;player.ontimeupdate=null;player.onloadedmetadata=null;player.onplay=null;player.onpause=null;player.pause();player.removeAttribute('src');player.load()}catch(e){} player=null}
+    if(pitchBufferNode){pitchBufferNode.onended=null;try{pitchBufferNode.stop(0)}catch(e){} try{pitchBufferNode.disconnect()}catch(e){} pitchBufferNode=null}
+    if(pitchEngine){try{pitchEngine.disconnect()}catch(e){} pitchEngine=null}
+    if(pitchGainNode){try{pitchGainNode.disconnect()}catch(e){} pitchGainNode=null}
+    if(pitchAudioCtx){try{pitchAudioCtx.close()}catch(e){} pitchAudioCtx=null}
+    if(objectUrl){URL.revokeObjectURL(objectUrl); objectUrl=null}
+    isPlaying=false;if(resetPlay) el.playBtn.textContent='▶';el.vu.classList.add('hidden');el.vu.classList.remove('flex')
+  }
+  function toggle(){if(!current())return;if(isPlaying){stopPlayer();updateTime();setStatus('Pausado.')}else playCurrent(progress)}
+  function updateTime(){el.seek.max=duration||100;el.seek.value=Math.min(progress,duration||100);el.time.textContent=fmt(progress)+' | '+fmt(duration)}
+  async function next(){
+    if(!tracks.length)return;
+    stopPlayer(false);
+    currentIndex=(currentIndex+1)%tracks.length;progress=0;duration=0;scrollBias=0;render();updateTime();
+    if(autoPlay === true) await playCurrent(0);
+    else {el.playBtn.textContent='▶';el.engine.textContent='FAIXA PRONTA';setStatus('Próxima faixa selecionada. Auto Play desligado: aperte PLAY quando quiser.')}
+  }
+  async function prev(){
+    if(!tracks.length)return;
+    stopPlayer(false);
+    currentIndex=(currentIndex-1+tracks.length)%tracks.length;progress=0;duration=0;scrollBias=0;render();updateTime();
+    if(autoPlay === true) await playCurrent(0);
+    else {el.playBtn.textContent='▶';el.engine.textContent='FAIXA PRONTA';setStatus('Faixa anterior selecionada. Auto Play desligado: aperte PLAY quando quiser.')}
+  }
+  async function removeTrack(id){const idx=tracks.findIndex(t=>t.id===id); if(idx<0)return; if(current()?.id===id) stopPlayer(); await deleteTrack(id); tracks=tracks.filter(t=>t.id!==id);allTracks=allTracks.filter(t=>t.id!==id); tracks.forEach((t,i)=>t.position=i); for(const t of tracks) await putTrack(t); if(currentIndex>=tracks.length)currentIndex=Math.max(0,tracks.length-1); render(); setStatus('Arquivo removido.')}
+  async function reorder(fromId,toId){if(!fromId||fromId===toId)return;const selectedId=current()?.id;const from=tracks.findIndex(t=>t.id===fromId),to=tracks.findIndex(t=>t.id===toId);if(from<0||to<0)return;const [item]=tracks.splice(from,1);tracks.splice(to,0,item);tracks.forEach((t,i)=>t.position=i);for(const t of tracks)await putTrack(t);currentIndex=Math.max(0,tracks.findIndex(t=>t.id===selectedId));render();setStatus('Setlist reorganizada e salva.')}
+
+  el.audioInput.addEventListener('change',e=>addAudios(e.target.files));
+  if(el.audioInputSetlist) el.audioInputSetlist.addEventListener('change',e=>addAudios(e.target.files));
+  el.txtInput.addEventListener('change',e=>{if(e.target.files[0])uploadTxt(e.target.files[0]);e.target.value=''});
+  el.playBtn.addEventListener('click',toggle);el.nextBtn.addEventListener('click',next);el.prevBtn.addEventListener('click',prev);
+  el.volume.addEventListener('input',e=>{const v=Number(e.target.value);el.volumeValue.textContent=Math.round(v*100)+'%'; if(player) player.volume=Math.max(0,Math.min(1,v)); if(pitchGainNode) pitchGainNode.gain.value=Math.max(0,Math.min(1,v));});
+  document.querySelectorAll('.pitch-btn').forEach(btn=>btn.addEventListener('click',async()=>{
+    if(isVideo(current())){setStatus('O pitch não é aplicado ao vídeo para não perder a sincronização.');return}
+    const oldPitch = pitchTones; pitchTones = Number(btn.dataset.pitch) || 0;const t=current();if(t){t.pitchTones=pitchTones;t.updatedAt=Date.now();await putTrack(t)}updatePitchUI();
+    setStatus(pitchTones===0?'Tom original selecionado. Player volta ao modo leve.':'Pitch selecionado: mantém o tempo original.');
+    if(isPlaying && oldPitch !== pitchTones){ const pos = progress; stopPlayer(false); playCurrent(pos); }
+  }));
+  el.seek.addEventListener('input',e=>{progress=Number(e.target.value);updateTime()});el.seek.addEventListener('change',e=>{progress=Number(e.target.value);if(player){player.currentTime=progress; if(!isPlaying) updateTime();}else updateTime();});
+  async function openVideoFullscreen(){
+    if(!isVideo(current()))return;
+    try{
+      if(el.videoPlayer.webkitEnterFullscreen){el.videoPlayer.webkitEnterFullscreen();return}
+      if(el.videoStage.requestFullscreen)await el.videoStage.requestFullscreen();
+      if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{});
+    }catch(e){setStatus('Gire o celular para a horizontal; o vídeo se ajustará automaticamente.')}
+  }
+  el.videoFullscreenBtn.addEventListener('click',openVideoFullscreen);
+  el.videoPlayer.addEventListener('dblclick',openVideoFullscreen);
+  el.scrollUpBtn.addEventListener('click',()=>{scrollBias -= 80; applyAutoScroll(); setStatus('Letra atrasada um pouco. Auto scroll continua ligado.');});
+  el.scrollDownBtn.addEventListener('click',()=>{scrollBias += 80; applyAutoScroll(); setStatus('Letra adiantada um pouco. Auto scroll continua ligado.');});
+  el.scrollTopBtn.addEventListener('click',()=>{scrollBias=0; scrollSpeed=1; localStorage.setItem('tcb_scroll_speed','1'); updateScrollSpeedUI(); applyAutoScroll(); setStatus('Sincronia do scroll zerada.');});
+  el.scrollSpeed.addEventListener('input',e=>{scrollSpeed=Number(e.target.value); localStorage.setItem('tcb_scroll_speed', String(scrollSpeed)); updateScrollSpeedUI(); applyAutoScroll(); setStatus('Velocidade do scroll ajustada.');});
+  if(el.fontSizeControl) el.fontSizeControl.addEventListener('input',e=>{fontSize=Number(e.target.value); localStorage.setItem('tcb_font_size', String(fontSize)); updateFontSizeUI(); setStatus('Tamanho da fonte da letra/cifra ajustado.');});
+  el.lyricsBox.addEventListener('scroll',()=>{
+    if(!autoScroll || !duration || programmaticScroll) return;
+    scrollBias = el.lyricsBox.scrollTop - baseScrollTop();
+  }, {passive:true});
+  el.autoScrollBtn.addEventListener('click',()=>{autoScroll=!autoScroll;updateAutoScrollUI();setStatus(autoScroll?'Auto scroll híbrido ativado. Você ainda pode corrigir fino.':'Auto scroll desligado. Controle totalmente manual.');});
+  el.autoPlayBtn.addEventListener('click',()=>{autoPlay=!autoPlay;localStorage.setItem('tcb_auto_play', String(autoPlay));updateAutoPlayUI();setStatus(autoPlay?'Auto Play LIGADO: áudio e vídeo avançam seguindo a setlist.':'Auto Play DESLIGADO: NEXT, PREV e seleção apenas preparam a faixa.');});
+  el.setlistSelect.addEventListener('change',()=>{stopPlayer();activeSetlistId=el.setlistSelect.value;saveSetlists();useActiveTracks();render();setStatus('Setlist selecionada.')});
+  el.newSetlistBtn.addEventListener('click',()=>{const name=prompt('Nome da nova setlist:','Nova Setlist');if(!name||!name.trim())return;const id='setlist_'+Date.now()+'_'+Math.random().toString(36).slice(2);setlists.push({id,name:name.trim()});activeSetlistId=id;saveSetlists();stopPlayer();useActiveTracks();renderSetlists();render();setStatus('Nova setlist criada.')});
+  el.renameSetlistBtn.addEventListener('click',()=>{const s=setlists.find(x=>x.id===activeSetlistId);if(!s)return;const name=prompt('Novo nome da setlist:',s.name);if(!name||!name.trim())return;s.name=name.trim();saveSetlists();renderSetlists();setStatus('Setlist renomeada.')});
+  el.deleteSetlistBtn.addEventListener('click',async()=>{if(setlists.length<=1)return;const s=setlists.find(x=>x.id===activeSetlistId);if(!s||!confirm(`Apagar a setlist "${s.name}" e todas as faixas dela?`))return;stopPlayer();const ids=allTracks.filter(t=>(t.setlistId||DEFAULT_SETLIST_ID)===activeSetlistId).map(t=>t.id);for(const id of ids)await deleteTrack(id);allTracks=allTracks.filter(t=>!ids.includes(t.id));setlists=setlists.filter(x=>x.id!==activeSetlistId);activeSetlistId=setlists[0].id;saveSetlists();useActiveTracks();renderSetlists();render();setStatus('Setlist apagada.')});
+  el.clearBtn.addEventListener('click',async()=>{if(confirm('Limpar todas as faixas desta setlist?')){stopPlayer();const ids=tracks.map(t=>t.id);for(const id of ids)await deleteTrack(id);allTracks=allTracks.filter(t=>!ids.includes(t.id));tracks=[];currentIndex=0;progress=0;duration=0;render();setStatus('Setlist limpa.')}});
+  const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isSafari = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(window.navigator.userAgent);
+
+  function showIOSInstallHelp(force=false){
+    if(!el.iosInstallCard || isStandalone) return;
+    const dismissed = localStorage.getItem('tcb_ios_install_dismissed') === 'true';
+    if(force || (isIOS && isSafari && !dismissed)) el.iosInstallCard.classList.add('show');
+  }
+  function hideIOSInstallHelp(save=true){
+    if(el.iosInstallCard) el.iosInstallCard.classList.remove('show');
+    if(save) localStorage.setItem('tcb_ios_install_dismissed','true');
+  }
+
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    deferredInstall=e;
+    el.installBtn.textContent='INSTALAR APP';
+    el.installBtn.classList.remove('hidden');
+  });
+  el.installBtn.addEventListener('click',async()=>{
+    if(deferredInstall){
+      deferredInstall.prompt();
+      deferredInstall=null;
+      el.installBtn.classList.add('hidden');
+      return;
+    }
+    showIOSInstallHelp(true);
+  });
+  if(isIOS && !isStandalone){
+    el.installBtn.textContent='INSTALAR NO IPHONE';
+    el.installBtn.classList.remove('hidden');
+    setTimeout(()=>showIOSInstallHelp(false),900);
+  }
+  if(el.iosInstallOkBtn) el.iosInstallOkBtn.addEventListener('click',()=>hideIOSInstallHelp(true));
+  if(el.iosInstallLaterBtn) el.iosInstallLaterBtn.addEventListener('click',()=>hideIOSInstallHelp(false));
+  if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+
+  const tabPalco=$('tabPalco'), tabSetlist=$('tabSetlist'), tabPalcoBtn=$('tabPalcoBtn'), tabSetlistBtn=$('tabSetlistBtn');
+  function showTab(tab){
+    const palco = tab === 'palco';
+    tabPalco.classList.toggle('active', palco);
+    tabSetlist.classList.toggle('active', !palco);
+    tabPalcoBtn.classList.toggle('active', palco);
+    tabSetlistBtn.classList.toggle('active', !palco);
+    localStorage.setItem('tcb_active_tab', tab);
+    if(tab === 'palco') setStatus('Modo Palco: controles principais e letra/cifra.');
+    else setStatus('Modo Setlist: organize áudios, letras/PDFs e ordem do show.');
+  }
+  tabPalcoBtn.addEventListener('click',()=>showTab('palco'));
+  tabSetlistBtn.addEventListener('click',()=>showTab('setlist'));
+  showTab(localStorage.getItem('tcb_active_tab') || 'palco');
+
+  updateAutoPlayUI(); updateAutoScrollUI(); updateScrollSpeedUI(); updateFontSizeUI(); updatePitchUI();
+  load();
+})();
+</script>
+
+  <footer style="margin:40px auto 24px;max-width:1600px;padding:22px;text-align:center;font-size:12px;color:#777;border-top:1px solid #27272a;line-height:1.55;">
+    <p style="font-weight:900;color:#fff;margin:0 0 8px;">© 2026 SAMUEL DE AZEVEDO CURSOS MUSICAIS LTDA.</p>
+    <p style="margin:0 0 8px;">Este aplicativo, incluindo seu código-fonte, design e funcionalidades, é protegido pela Lei nº 9.610/98 (Lei de Direitos Autorais) e demais legislações aplicáveis.</p>
+    <p style="margin:0 0 8px;">A reprodução, distribuição ou utilização não autorizada deste software constitui violação de direitos autorais, sujeitando o infrator às penalidades previstas no artigo 184 do Código Penal Brasileiro.</p>
+    <p style="margin:0;">Todos os direitos reservados.</p>
+  </footer>
+
+</body>
+</html>
