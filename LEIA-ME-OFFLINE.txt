@@ -1,0 +1,56 @@
+TRUCKER CAP PLAYER — CORREÇÃO OFF-LINE v36
+
+PARA SAMUEL / PUBLICAÇÃO
+1. Substitua os arquivos do site no MESMO endereço HTTPS, incluindo a pasta vendor.
+2. Não altere o domínio ou a pasta do app: os dados pertencem ao endereço e ao navegador em que foram importados.
+3. Não peça ao cliente para limpar dados, cache ou desinstalar para atualizar. Isso pode remover a biblioteca local.
+4. Abra conectado e aguarde o aviso verde PRONTO PARA USO OFF-LINE. Se houver atualização pendente, feche todas as janelas do app e abra novamente conectado.
+5. Antes de distribuir, faça o teste abaixo no endereço publicado e nos aparelhos atendidos.
+
+PARA O CLIENTE
+O primeiro acesso, a instalação e as atualizações precisam de internet.
+Depois do aviso verde, os recursos do app e os áudios, vídeos, TXT e PDF importados ficam disponíveis no mesmo aparelho/navegador sem internet.
+O aviso verde confirma os arquivos do aplicativo. Aguarde também a mensagem de conclusão da importação das suas mídias.
+O ZIP não é um instalador de Windows/Android: não abra o index.html diretamente por duplo clique. Use o app pelo endereço HTTPS e instale pelo navegador.
+No iPhone/iPad, use Safari > Compartilhar > Adicionar à Tela de Início. Importe os arquivos dentro do app instalado e teste nele.
+Use uma janela normal, sem navegação anônima.
+Guarde cópias dos arquivos originais. A limpeza dos dados do navegador, a remoção do app ou a exclusão automática pelo sistema pode remover os arquivos locais; a solicitação de armazenamento persistente depende do navegador.
+
+TESTE DE ACEITAÇÃO NO APARELHO
+1. Com internet, abra o app atualizado e aguarde PRONTO PARA USO OFF-LINE.
+2. Importe áudio, vídeo, TXT e um PDF que nunca tenha aberto neste app.
+3. Desative Wi-Fi e dados móveis / ative modo avião.
+4. Feche o app completamente e abra novamente pelo ícone.
+5. Confira visual, setlists, reprodução de áudio e vídeo, troca de tom, TXT e PDF.
+6. Feche e reabra novamente ainda sem internet; confira a permanência dos arquivos.
+7. Exclua apenas a letra de uma faixa de teste e confira que o áudio continua disponível.
+
+CORREÇÕES
+- Visual e leitor PDF passam a ser distribuídos localmente com o app.
+- Cache obrigatório inclui o leitor PDF e seu worker, mesmo sem abrir PDF na instalação.
+- Confirmação visível da preparação off-line; erros deixam de ser ocultados.
+- Atualização remove apenas caches com prefixo deste produto.
+- Recursos ausentes não recebem HTML indevidamente.
+- Gravação de mídia só termina quando a transação local confirma a conclusão.
+- Falha na gravação não é sobrescrita pela mensagem de sucesso.
+- Mantidos os nomes do banco de dados e das preferências anteriores.
+
+CAUSA CONFIRMADA NO SITE PUBLICADO
+No endereço https://tcplayerpro.vercel.app/, o arquivo icon.png retornava 404.
+O Service Worker v35 exigia esse arquivo no cache.addAll. Isso abortava a instalação inteira, deixando o app sem reabertura off-line.
+
+CORREÇÃO v36
+Ícones, manifesto e licença não impedem a instalação dos recursos essenciais.
+Mantidos os novos ícones enviados e os nomes do banco de dados/preferências.
+O aviso verde mostra V36 para identificar a versão recebida.
+
+VALIDAÇÃO DESTE PACOTE
+A falha foi reproduzida na versão publicada em Chromium real.
+A v36 foi testada em Chromium real com ícones e licença devolvendo 404: instalou, importou WAV/PDF e reabriu após encerrar completamente o navegador, com a rede bloqueada. Recuperou o banco, renderizou PDF e reproduziu áudio sem internet.
+O teste foi feito em Chromium de computador. Android/iPhone e outros formatos de mídia ainda precisam de validação nos respectivos aparelhos.
+
+PUBLICAÇÃO NECESSÁRIA
+Este ZIP não altera sozinho o site que está no ar.
+Publique TODO o conteúdo na raiz do projeto existente, mantendo o mesmo endereço.
+Depois, abra conectado e confira o aviso V36 — PRONTO PARA USO OFF-LINE.
+Não limpe os dados e não desinstale para atualizar.
