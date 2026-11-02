@@ -1,0 +1,159 @@
+TRUCKER CAP PLAYER — v37 • CONTROLE POR PEDAL
+
+Abra CONFIGURAR PEDAL na tela principal e ative o controle.
+Pareie o Cube Turner Pro pelo Bluetooth do aparelho em modo teclado.
+Padrão: seta esquerda = música anterior; seta direita = próxima música.
+Escolha Anterior/Próxima, Play e Pause/Próxima ou Play/Pause separados.
+Também é possível escolher cada ação individualmente, inclusive desativar um lado.
+Para outros comandos, toque em Aprender e pressione o pedal correspondente.
+Escape ou Cancelar sai do aprendizado. Comandos iguais nos dois lados são recusados.
+A configuração é salva automaticamente neste navegador/aparelho.
+A troca de música segue o Auto Play existente: desligado apenas seleciona a faixa.
+Mantenha o Player em primeiro plano; após configurar, toque fora dos campos e botões.
+O controle não atua durante edição de campos ou com controles da interface em foco.
+Use modo teclado; esta versão não recebe MIDI nem gestos de tela.
+Funciona offline depois de o app estar instalado e os arquivos carregados.
+O pareamento é feito no sistema, não dentro do Player.
+Validação automática: sintaxe JavaScript e comportamento do controle por eventos.
+Necessário validar no pedal físico e navegador utilizado, especialmente no iPhone/iPad.
+
+Atualize os arquivos no mesmo endereço do Player para manter o acervo local.
+O cache da aplicação agora é v37. Não limpe os dados do navegador para atualizar.
+
+--- NOTAS DA VERSÃO ANTERIOR ---
+
+TRUCKER CAP PLAYER — CORREÇÃO OFF-LINE v36
+
+PARA SAMUEL / PUBLICAÇÃO
+1. Substitua os arquivos do site no MESMO endereço HTTPS, incluindo a pasta vendor.
+2. Não altere o domínio ou a pasta do app: os dados pertencem ao endereço e ao navegador em que foram importados.
+3. Não peça ao cliente para limpar dados, cache ou desinstalar para atualizar. Isso pode remover a biblioteca local.
+4. Abra conectado e aguarde o aviso verde PRONTO PARA USO OFF-LINE. Se houver atualização pendente, feche todas as janelas do app e abra novamente conectado.
+5. Antes de distribuir, faça o teste abaixo no endereço publicado e nos aparelhos atendidos.
+
+PARA O CLIENTE
+O primeiro acesso, a instalação e as atualizações precisam de internet.
+Depois do aviso verde, os recursos do app e os áudios, vídeos, TXT e PDF importados ficam disponíveis no mesmo aparelho/navegador sem internet.
+O aviso verde confirma os arquivos do aplicativo. Aguarde também a mensagem de conclusão da importação das suas mídias.
+O ZIP não é um instalador de Windows/Android: não abra o index.html diretamente por duplo clique. Use o app pelo endereço HTTPS e instale pelo navegador.
+No iPhone/iPad, use Safari > Compartilhar > Adicionar à Tela de Início. Importe os arquivos dentro do app instalado e teste nele.
+Use uma janela normal, sem navegação anônima.
+Guarde cópias dos arquivos originais. A limpeza dos dados do navegador, a remoção do app ou a exclusão automática pelo sistema pode remover os arquivos locais; a solicitação de armazenamento persistente depende do navegador.
+
+TESTE DE ACEITAÇÃO NO APARELHO
+1. Com internet, abra o app atualizado e aguarde PRONTO PARA USO OFF-LINE.
+2. Importe áudio, vídeo, TXT e um PDF que nunca tenha aberto neste app.
+3. Desative Wi-Fi e dados móveis / ative modo avião.
+4. Feche o app completamente e abra novamente pelo ícone.
+5. Confira visual, setlists, reprodução de áudio e vídeo, troca de tom, TXT e PDF.
+6. Feche e reabra novamente ainda sem internet; confira a permanência dos arquivos.
+7. Exclua apenas a letra de uma faixa de teste e confira que o áudio continua disponível.
+
+CORREÇÕES
+- Visual e leitor PDF passam a ser distribuídos localmente com o app.
+- Cache obrigatório inclui o leitor PDF e seu worker, mesmo sem abrir PDF na instalação.
+- Confirmação visível da preparação off-line; erros deixam de ser ocultados.
+- Atualização remove apenas caches com prefixo deste produto.
+- Recursos ausentes não recebem HTML indevidamente.
+- Gravação de mídia só termina quando a transação local confirma a conclusão.
+- Falha na gravação não é sobrescrita pela mensagem de sucesso.
+- Mantidos os nomes do banco de dados e das preferências anteriores.
+
+CAUSA CONFIRMADA NO SITE PUBLICADO
+No endereço https://tcplayerpro.vercel.app/, o arquivo icon.png retornava 404.
+O Service Worker v35 exigia esse arquivo no cache.addAll. Isso abortava a instalação inteira, deixando o app sem reabertura off-line.
+
+CORREÇÃO v36
+Ícones, manifesto e licença não impedem a instalação dos recursos essenciais.
+Mantidos os novos ícones enviados e os nomes do banco de dados/preferências.
+O aviso verde mostra V36 para identificar a versão recebida.
+
+VALIDAÇÃO DESTE PACOTE
+A falha foi reproduzida na versão publicada em Chromium real.
+A v36 foi testada em Chromium real com ícones e licença devolvendo 404: instalou, importou WAV/PDF e reabriu após encerrar completamente o navegador, com a rede bloqueada. Recuperou o banco, renderizou PDF e reproduziu áudio sem internet.
+O teste foi feito em Chromium de computador. Android/iPhone e outros formatos de mídia ainda precisam de validação nos respectivos aparelhos.
+
+PUBLICAÇÃO NECESSÁRIA
+Este ZIP não altera sozinho o site que está no ar.
+Publique TODO o conteúdo na raiz do projeto existente, mantendo o mesmo endereço.
+Depois, abra conectado e confira o aviso V36 — PRONTO PARA USO OFF-LINE.
+Não limpe os dados e não desinstale para atualizar.
+
+VERSÃO 38 — PEDAL E CORES MUSICAIS
+41 ações disponíveis, mais Nenhuma ação. Configure cada lado em Configurações do pedal.
+ÁUDIO: anterior/próxima, play/pause, continuar, pausar, parar e zerar, reiniciar,
+voltar/avançar 5 ou 10 segundos, volume +/-, mudo, Auto Play, tom +/- e original.
+LETRAS: rolar 80 px, meia tela, página anterior/próxima, início/final,
+rolagem horizontal, Auto Scroll alternar/ligar/desligar, velocidade +/-,
+sincronizar posição ao áudio, fonte TXT +/-, zoom PDF +/-.
+TELA: tela cheia (quando disponível), Palco e Setlist.
+Página em TXT avança 90% da tela. Em PDF vai à página seguinte/anterior.
+O Auto Scroll acompanha o áudio; com áudio pausado, use rolagem manual.
+Os comandos de tom alteram o áudio, não transpõem o texto da cifra.
+O pedal deve enviar teclas (HID), com o app em primeiro plano.
+Aprenda as duas teclas e ative o controle. Configuração salva no aparelho.
+Não há execução de comandos durante a edição de campos.
+
+CIFRAS/TABS: cifras em linhas próprias (Am, C7M, F#m7, G/B etc.),
+acordes entre colchetes no meio da letra e linhas de tablatura são amarelos.
+Espaços e quebras do TXT permanecem intactos. Letras continuam brancas.
+PDFs: linhas musicais reconhecíveis na camada de texto recebem destaque
+amarelo sobre fundo escuro. PDFs escaneados/imagens não possuem texto
+para identificação: precisam de OCR ou de uma versão TXT.
+A detecção é automática e pode não reconhecer notações fora desses padrões.
+
+VERSÃO 39 — IMPORTAÇÃO NO IPHONE/IPAD
+- Seletor sem filtro de tipos no iOS para evitar áudios desabilitados.
+- Botões de seleção acionam diretamente o campo de arquivo.
+- Validação de formato dentro do app, incluindo MIME vazio.
+- Leitura completa antes de salvar em Blob local; falhas por arquivo não
+  impedem os seguintes do lote. A configuração dos pedais foi preservada.
+- Mensagens específicas de arquivo vazio, leitura incompleta e falta de espaço.
+- Selecionar o mesmo arquivo novamente permite repetir uma tentativa.
+
+COMO IMPORTAR NO IPHONE:
+1. Tenha um arquivo MP3, WAV ou M4A no app Arquivos.
+2. Se estiver no iCloud com ícone de nuvem, baixe antes de importar.
+3. No Player, toque CARREGAR ÁUDIO/VÍDEO e escolha Arquivos / Explorar.
+4. Selecione o arquivo e aguarde a mensagem de confirmação.
+5. Teste a reprodução e depois abra sem internet para confirmar o uso offline.
+Faixas do catálogo de streaming Apple Music/Spotify não são arquivos locais.
+Importação e reprodução são etapas diferentes: um codec não suportado pelo
+Safari pode impedir a reprodução mesmo após a importação. Prefira MP3 comum.
+
+PUBLICAÇÃO: envie todos os arquivos desta versão ao site, incluindo
+media-import.js e sw.js. Abra o app com internet e aguarde a confirmação
+OFF-LINE PRONTO antes de testar. Se continuar na versão antiga, feche todas
+as janelas do Player e reabra com internet. Não apague os dados do site nem
+desinstale como primeiro passo: isso pode remover as faixas já armazenadas.
+Validação: testes automatizados de leitura, lote parcial, mensagens e sintaxe.
+O seletor nativo e o funcionamento em aparelho iPhone real ainda precisam
+ser confirmados com o cliente.
+
+VERSÃO 40 — AJUSTES AUTOMÁTICOS POR MÚSICA E SETLIST
+Cada música tem seus próprios ajustes: velocidade e estado do Auto Scroll,
+tamanho da fonte, correção de sincronização, posição manual da letra,
+rolagem horizontal, zoom do PDF, volume e tom do áudio.
+Ajustes feitos pelos botões, controles e pedal usam o mesmo salvamento.
+As mudanças são gravadas automaticamente neste navegador/aparelho, sem
+botão Salvar, até serem alteradas novamente. Se a gravação falhar, aparece
+um aviso no indicador de ajustes salvos.
+
+Cada setlist lembra Auto Play, última música selecionada e tela Palco/Setlist.
+Nomes, ordem das músicas, arquivos e letras continuam salvos como antes.
+Músicas existentes sem ajuste individual herdam a fonte/velocidade global
+anterior como padrão; editar uma música não altera as outras.
+A troca/reabertura não inicia o áudio sozinha. A posição do áudio continua
+seguindo os comandos normais de transporte; os ajustes musicais persistem.
+Posição manual da letra e correção do scroll são mantidas; o avanço automático
+durante a reprodução não substitui a configuração editada pelo músico.
+Tela cheia depende de um gesto do usuário e não é restaurada ao reabrir.
+Pareamento Bluetooth e teclas do pedal são configurações do aparelho.
+Não existe sincronização desses ajustes entre dispositivos.
+
+PUBLICAÇÃO V40: envie todos os arquivos do ZIP, incluindo preferences.js
+além dos arquivos da v39. Atualização preserva áudios e letras no mesmo
+endereço, navegador e aparelho; não limpe os dados do site.
+Validação automatizada: isolamento entre músicas/setlists, restauração ao
+reiniciar, valores padrão antigos, falhas de gravação, comandos do pedal,
+importação de mídia e sintaxe dos scripts.
